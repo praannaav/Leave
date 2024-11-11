@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Schedule</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-4">Leave Schedule</h1>
+    <hr>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Date of Leave</th>
+                <th>Replacement</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in schedule %}
+            <tr>
+                <td>{{ item.employee_name }}</td>
+                <td>{{ item.date }}</td>
+                <td>{{ item.replacement_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/" class="btn btn-primary">Back to Home</a>
+</div>
+</body>
+</html>

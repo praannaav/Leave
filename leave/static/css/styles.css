@@ -1,0 +1,12 @@
+body {
+    background-color: #f8f9fa;
+}
+
+h1 {
+    color: #343a40;
+}
+
+#calendar {
+    max-width: 900px;
+    margin: 0 auto;
+}

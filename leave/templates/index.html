@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leave Management System</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-4">Leave Management System</h1>
+    <hr>
+
+    {% if session.get('is_admin') %}
+        <h2>Add Employee</h2>
+        <form action="/add_employee" method="post" class="form-inline mb-4">
+            <input type="text" name="name" placeholder="Employee Name" class="form-control mr-2">
+            <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+    {% endif %}
+
+    <h2>Employees</h2>
+    <ul class="list-group mb-4">
+        {% if employees %}
+            {% for employee in employees %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ employee.employee_number }}. {{ employee.name }}
+                <a href="/calendar/{{ employee.id }}" class="btn btn-sm btn-success">Request Leave</a>
+            </li>
+            {% endfor %}
+        {% else %}
+            <li class="list-group-item">No employees found. Please contact the administrator.</li>
+        {% endif %}
+    </ul>
+
+    <h2>Leave Schedule</h2>
+    <a href="/leave_schedule" class="btn btn-secondary mb-2">View Leave Schedule (Table)</a>
+    <a href="/leave_calendar" class="btn btn-secondary mb-4">View Leave Schedule (Calendar)</a>
+
+    <h2>Current Replacements</h2>
+    <ul class="list-group" id="replacement-list">
+        <!-- Replacements will be loaded here via JavaScript -->
+    </ul>
+
+    {% if session.get('is_admin') %}
+        <h2>Admin Panel</h2>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary mb-2">Admin Dashboard</a>
+        <a href="{{ url_for('edit_employees') }}" class="btn btn-secondary mb-2">Edit Employees</a>
+        <a href="{{ url_for('edit_leaves') }}" class="btn btn-secondary mb-2">Edit Leave Schedule</a>
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-danger mb-4">Logout</a>
+    {% else %}
+        <a href="{{ url_for('admin_login') }}" class="btn btn-secondary mb-4">Admin Login</a>
+    {% endif %}
+</div>
+
+<!-- jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<!-- Custom Scripts -->
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

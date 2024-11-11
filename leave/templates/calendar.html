@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request Leave for {{ employee.name }}</title>
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-4">Request Leave for {{ employee.name }}</h1>
+    <hr>
+
+    <!-- Replacement Selection -->
+    <div class="form-group">
+        <label for="replacement_employee_id">Select Replacement Employee (Optional):</label>
+        <select id="replacement_employee_id" class="form-control">
+            <option value="None">None</option>
+            {% for emp in employees %}
+                <option value="{{ emp.id }}">{{ emp.employee_number }}. {{ emp.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div id='calendar'></div>
+    <button id="submit-leave" class="btn btn-primary mt-3">Submit Leave Request</button>
+</div>
+
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var selectedDates = [];
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            unselectAuto: false,
+            select: function(info) {
+                var dateStr = info.startStr;
+                if (!selectedDates.includes(dateStr)) {
+                    selectedDates.push(dateStr);
+                    // Mark the date as selected
+                    calendar.addEvent({
+                        start: dateStr,
+                        allDay: true,
+                        display: 'background',
+                        backgroundColor: '#00ff00'
+                    });
+                } else {
+                    selectedDates = selectedDates.filter(d => d !== dateStr);
+                    // Remove the background event
+                    var events = calendar.getEvents();
+                    events.forEach(function(event) {
+                        if (event.startStr === dateStr && event.display === 'background') {
+                            event.remove();
+                        }
+                    });
+                }
+            },
+            events: '/get_leaves'
+        });
+
+        calendar.render();
+
+        $('#submit-leave').on('click', function() {
+            var replacementEmployeeId = $('#replacement_employee_id').val();
+            if (replacementEmployeeId == 'None') {
+                // Show pop-up message
+                if (!confirm('For any pending tasks that you have, please select a replacement teammate. Do you want to proceed without a replacement?')) {
+                    return;
+                }
+            }
+            if (selectedDates.length === 0) {
+                alert('Please select at least one date.');
+                return;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/request_leave',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    employee_id: {{ employee.id }},
+                    dates: selectedDates,
+                    replacement_employee_id: replacementEmployeeId
+                }),
+                success: function(response) {
+                    var approved = response.approved;
+                    var declined = response.declined;
+                    var message = '';
+                    if (approved.length > 0) {
+                        message += 'Approved:\n' + approved.join('\n') + '\n\n';
+                    }
+                    if (declined.length > 0) {
+                        message += 'Declined:\n';
+                        declined.forEach(function(item) {
+                            message += item.date + ': ' + item.reason + '\n';
+                        });
+                    }
+                    alert(message);
+                    window.location.href = '/';
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-4">Admin Dashboard</h1>
+    <hr>
+
+    <canvas id="leaveChart" width="400" height="200"></canvas>
+
+    <a href="/" class="btn btn-primary mt-3">Back to Home</a>
+</div>
+
+<script>
+    var ctx = document.getElementById('leaveChart').getContext('2d');
+    var leaveDates = {{ leave_dates | tojson }};
+    var leaveValues = {{ leave_values | tojson }};
+
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: leaveDates,
+            datasets: [{
+                label: 'Number of Leaves',
+                data: leaveValues,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: { display: true, text: 'Date' }
+                },
+                y: {
+                    title: { display: true, text: 'Number of Leaves' },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
